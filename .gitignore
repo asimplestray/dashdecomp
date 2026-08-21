@@ -1,0 +1,13 @@
+build/
+disassembly/*
+!disassembly/.gitkeep
+expected/*
+!expected/.gitkeep
+*.axf
+*.elf
+*.o
+*.map
+__pycache__/
+*.pyc
+.vscode/
+.idea/

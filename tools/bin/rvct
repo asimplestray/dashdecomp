@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Wrapper transparente: roda ferramentas do RVCT 4.0 dentro do container.
+# Uso: symlink/call com o nome da ferramenta (armcc, armlink, armasm, fromelf, armar)
+set -e
+TOOL="$(basename "$0")"
+
+DOCKER=docker
+command -v "$DOCKER" >/dev/null || DOCKER="sudo docker"
+
+EXTRA_MOUNTS=()
+LIC="$(dirname "$0")/../docker/license.dat"
+if [ -f "$LIC" ]; then
+    EXTRA_MOUNTS+=(-v "$(realpath "$LIC"):/lic/license.dat:ro")
+fi
+
+exec "$DOCKER" run --rm -i \
+    -u "$(id -u):$(id -g)" \
+    -v "$PWD":/work \
+    -w /work \
+    "${EXTRA_MOUNTS[@]}" \
+    rvct40 "$TOOL" "$@"

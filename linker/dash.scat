@@ -1,0 +1,25 @@
+; Scatter file do armlink - Mario Kart 7 v1.0 USA
+; Enderecos do exheader (ver data/layout.json)
+
+LR_CODE 0x00100000
+{
+    ER_TEXT +0
+    {
+        * (+RO-CODE)
+    }
+
+    ER_RODATA 0x005DC000
+    {
+        * (+RO-DATA)
+    }
+
+    ER_DATA 0x00644000
+    {
+        * (+RW-DATA)
+    }
+
+    ER_BSS 0x0065B590
+    {
+        * (+ZI)
+    }
+}

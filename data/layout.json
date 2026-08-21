@@ -1,0 +1,17 @@
+{
+    "name": "code.bin",
+    "version": "v1.0 USA (CTR-P-AMKE Rev00, TitleVersion 0.1.0 v16)",
+    "md5": "4b8320677e3311b14a75d2abb97772e8",
+    "segments": [
+        {"name": ".text",   "address": "0x00100000", "size": "0x004DBC4C"},
+        {"name": ".rodata", "address": "0x005DC000", "size": "0x00067100"},
+        {"name": ".data",   "address": "0x00644000", "size": "0x00017590"},
+        {"name": ".bss",    "address": "0x0065B590", "size": "0x0003FFC0"}
+    ],
+    "notes": {
+        "text_end": "0x005DBC4C (rodata comeca em 0x5DC000, gap de alinhamento)",
+        "rodata_end": "0x00643100 (data comeca em 0x644000, gap de alinhamento)",
+        "bss_address": "fim do .data; stack de 0x4000 apos o bss",
+        "source": "exheader do NCCH, saida do ctrtool"
+    }
+}
