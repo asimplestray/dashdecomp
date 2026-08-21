@@ -15,10 +15,12 @@ public class DashLayout extends GhidraScript {
             return;
         }
         if (!blk.getStart().equals(s)) {
-            blk = mem.split(blk, s);
+            mem.split(blk, s);
+            blk = mem.getBlock(s);
         }
         if (blk.getEnd().getOffset() > end) {
             mem.split(blk, e);
+            blk = mem.getBlock(s);
         }
         blk.setExecute(exec);
         blk.setWrite(false);
