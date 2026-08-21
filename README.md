@@ -31,24 +31,22 @@ sudo pacman -Syu devkitARM ctrtool 3dstool
 
 ### Compilador original (obrigatório para matching)
 
-O projeto exige **RVCT 4.0** (armcc/armasm/armlink/fromelf). Recomendado rodar via Docker:
+O projeto usa **armcc (RVCT 4.0)** via Wine, com builds obtidos do
+[decompme/compilers](https://github.com/decompme/compilers) (mesma fonte do decomp.me):
 
 ```bash
-# 1. coloque o tarball/arvore do RVCT em tools/docker/payload/
-#    (e license.dat, se houver, junto)
-# 2. build da imagem:
-./tools/docker/build.sh
-
-# 3. teste (precisa de re-login apos usermod -aG docker):
-tools/bin/armcc --vsn
+# estrutura esperada: tools/rvct/<build>/bin/armcc.exe
+# build ativo selecionavel:
+RVCT_BUILD=b902 tools/bin/armcc --vsn   # RVCT4.0 [Build 902]
+RVCT_BUILD=b821 tools/bin/armcc --vsn   # RVCT4.0 [Build 821] (oot3d)
 ```
 
-Os wrappers em `tools/bin/` são detectados automaticamente pelo CMake —
-não precisa de `RVCT_ROOT`. Alternativa nativa: aponte `RVCT_ROOT` para a
-instalação e garanta `armcc` no `PATH`.
+Builds disponíveis localmente: `b771`, `b821`, `b865`, `b902` (4.0), além de
+4.1 e 5.04 no zip da fonte. O build exato do jogo será determinado por
+fingerprint compilando funções contra o binário original.
 
-Build alvo ainda a determinar por fingerprint — candidatos: **925**, **821**
-(oot3d), **902**. Teste funções isoladas no [decomp.me](https://decomp.me).
+Alternativa Docker mantida em `tools/docker/` para uma instalação completa
+do RVCT (com armlink/fromelf, necessário pra linkar o code.bin final).
 
 ## Uso
 

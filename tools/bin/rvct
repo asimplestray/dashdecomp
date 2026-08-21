@@ -1,21 +1,16 @@
 #!/usr/bin/env bash
-# Wrapper transparente: roda ferramentas do RVCT 4.0 dentro do container.
-# Uso: symlink/call com o nome da ferramenta (armcc, armlink, armasm, fromelf, armar)
+# armcc via Wine - builds disponiveis em tools/rvct/
+# Selecione com RVCT_BUILD=b821 (padrao: b902)
 set -e
-TOOL="$(basename "$0")"
+HERE="$(cd "$(dirname "$0")" && pwd)"
+BUILD="${RVCT_BUILD:-b902}"
+EXE="$HERE/../rvct/$BUILD/bin/armcc.exe"
 
-DOCKER=docker
-command -v "$DOCKER" >/dev/null || DOCKER="sudo docker"
-
-EXTRA_MOUNTS=()
-LIC="$(dirname "$0")/../docker/license.dat"
-if [ -f "$LIC" ]; then
-    EXTRA_MOUNTS+=(-v "$(realpath "$LIC"):/lic/license.dat:ro")
+if [ ! -f "$EXE" ]; then
+    echo "ERRO: $EXE nao existe. Builds disponiveis:" >&2
+    ls "$HERE/../rvct/" >&2
+    exit 1
 fi
 
-exec "$DOCKER" run --rm -i \
-    -u "$(id -u):$(id -g)" \
-    -v "$PWD":/work \
-    -w /work \
-    "${EXTRA_MOUNTS[@]}" \
-    rvct40 "$TOOL" "$@"
+export WINEDEBUG=-all
+exec wine "$EXE" "$@"

@@ -5,25 +5,27 @@ import subprocess
 import sys
 
 WINEPREFIX = os.environ.get("RVCT_WINEPREFIX", os.path.expanduser("~/.wine"))
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def which(name):
     return shutil.which(name)
 
 
-def wine_which(name):
-    if not which("wine"):
+def rvct_builds():
+    import pathlib
+    d = pathlib.Path(REPO) / "tools" / "rvct"
+    if not d.exists():
+        return []
+    return sorted(p.name for p in d.iterdir()
+                  if (p / "bin" / "armcc.exe").exists())
+
+
+def armcc_wine():
+    builds = rvct_builds()
+    if not builds:
         return None
-    for d in ("c:/RVCT", "c:/Program Files/ARM/RVCT", "c:/arm"):
-        p = f"{d}/{name}.exe"
-        r = subprocess.run(["wine", "winepath", "-u", p],
-                           capture_output=True, text=True)
-        if r.returncode == 0:
-            import pathlib
-            u = r.stdout.strip()
-            if pathlib.Path(u).exists():
-                return f"wine:{p}"
-    return None
+    return f"wine:tools/rvct/{builds[-1]}/bin/armcc.exe"
 
 
 CHECKS = [
@@ -35,7 +37,7 @@ CHECKS = [
     ("arm-none-eabi-objdump", lambda: which("arm-none-eabi-objdump"), True),
     ("wine", lambda: which("wine"), False),
     ("ghidra", lambda: which("ghidra") or which("analyzeHeadless"), False),
-    ("armcc (PATH)", lambda: which("armcc") or wine_which("armcc"), False),
+    ("armcc (tools/rvct)", lambda: armcc_wine(), False),
 ]
 
 
@@ -49,15 +51,16 @@ def main():
         if not found and required:
             missing.append(name)
 
-    rvct = os.environ.get("RVCT_ROOT")
-    print(f"\n  RVCT_ROOT: {rvct or 'nao definido'}")
+    builds = rvct_builds()
+    if builds:
+        print(f"\n  Builds armcc disponiveis: {', '.join(builds)}")
+        print(f"  Ativo: RVCT_BUILD={os.environ.get('RVCT_BUILD', 'b902 (padrao)')}")
 
     if missing:
         print(f"\nFaltam ferramentas obrigatorias: {', '.join(missing)}")
         sys.exit(1)
-    if not which("armcc") and not wine_which("armcc"):
+    if not armcc_wine():
         print("\narmcc nao encontrado - necessario para compilar/matching.")
-        print("export RVCT_ROOT=/caminho/rvct40 e/ou instale no Wine.")
         sys.exit(2)
     print("\nAmbiente completo! Bora decompilar.")
 
