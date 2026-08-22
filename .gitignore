@@ -6,7 +6,7 @@ expected/*
 *.axf
 *.elf
 *.o
-!targets/*.o
+!targets/**/*.o
 *.map
 __pycache__/
 *.pyc
