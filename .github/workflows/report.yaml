@@ -1,0 +1,32 @@
+name: Report
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Generate objdiff config
+        run: python3 tools/objdiff_report.py
+
+      - name: Install objdiff-cli
+        run: |
+          wget -q https://github.com/encounter/objdiff/releases/download/v3.8.0/objdiff-cli-linux-x86_64 -O objdiff-cli
+          chmod +x objdiff-cli
+
+      - name: Generate progress report
+        run: ./objdiff-cli report generate -p . -o build/progress.json
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: us_report
+          path: build/progress.json
