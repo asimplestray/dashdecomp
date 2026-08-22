@@ -125,7 +125,7 @@ def main():
         (udir / f"{uname}.o").write_bytes(elf32_arm(blob, uname, rels))
 
         for a, size, name in group:
-            index[a] = {"unit": uname, "size": size, "name": name}
+            index[f"0x{a:08x}"] = {"unit": uname, "size": size, "name": name}
         total_syms += len(group)
 
     INDEX.write_text(json.dumps(index, indent=0))

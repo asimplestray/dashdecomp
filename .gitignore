@@ -3,6 +3,8 @@ disassembly/*
 !disassembly/.gitkeep
 expected/*
 !expected/.gitkeep
+targets/
+objdiff.json
 *.axf
 *.elf
 *.o

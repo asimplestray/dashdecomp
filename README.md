@@ -66,11 +66,16 @@ python3 diff.py                        # diff detalhado com desassembly
 |---|---|
 | `src/` | Código-fonte decompilado (C++) |
 | `include/` | Headers do jogo |
-| `data/` | Dados/assembly gerados pelo splitter |
-| `disassembly/` | Dump bruto e extrações (não versionado) |
-| `expected/` | `code.bin` de referência (não versionado) |
+| `data/symbols.csv` | Inventário das 15k+ funções (endereço, tamanho, status) |
+| `docs/disasm/` | Desassembly anotado por unit — referência de leitura |
+| `disassembly/` | Seu dump local (NUNCA versionado) |
+| `expected/` | `code.bin` extraído localmente (NUNCA versionado) |
 | `linker/` | Scatter files do armlink |
-| `tools/` | Scripts de extração, split, análise |
+| `tools/` | Extração, match, split, scripts Ghidra, targets efêmeros |
+
+**Zero dados do jogo neste repositório.** Targets e reports são gerados
+no CI a partir de um dump privado do dono (`ASSETS_TOKEN`); localmente,
+do seu próprio cartucho.
 
 As bibliotecas do CTR SDK (`nn::*`) são pré-compiladas e linkadas como objetos do SDK — fora do escopo do decomp, como `libultra` nos projetos N64.
 

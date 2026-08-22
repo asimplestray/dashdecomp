@@ -15,20 +15,20 @@ python3 tools/check_env.py   # precisa terminar com "Ambiente completo!"
 
 ## Fluxo de contribuição
 
-O código é organizado em **units** (`targets/dash_XXXXXXXX/`) — blocos de
-~128KB de código que futuramente viram módulos nomeados (`Race/Camera`,
-`Mario/JSystem/...`, estilo Sunshine decomp). Cada unit contém centenas de
-funções; o progresso é medido por função dentro da unit.
+O código é organizado em **units** — blocos de ~128KB de código que
+futuramente viram módulos nomeados (`Race/Camera`, estilo Sunshine decomp).
+Cada unit contém centenas de funções; o progresso é medido por função.
 
-1. **Escolha uma função** no `data/symbols.csv` (gerado pelo Ghidra).
-   Colunas: `address,size,name,status,owner`. Use `data/targets/index.json`
-   pra descobrir a qual unit uma função pertence. Comece pelas pequenas.
+1. **Escolha uma função** no `data/symbols.csv`
+   (`address,size,name,status,owner`). A coluna `unit`/`docs/disasm/` te diz
+   onde ler o desassembly anotado dela. Comece pelas pequenas.
 
 2. **Reserve**: abra uma issue `[claim] 0xADDR nome_da_funcao` ou comente
    numa issue de tracking. Isso evita trabalho duplicado.
 
-3. **Descompile e entenda** a função (Ghidra/IDA/decomp.me). Escreva o C++
-   em `src/<unit>/<Nome>.cpp` seguindo as convenções abaixo.
+3. **Descompile e entenda** a função (Ghidra/IDA/decomp.me + a referência
+   anotada em `docs/disasm/<unit>.asm`). Escreva o C++ em
+   `src/<unit>/<Nome>.cpp`.
 
 4. **Verifique o match até bater 100%**:
 

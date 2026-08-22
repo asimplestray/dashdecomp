@@ -7,6 +7,8 @@ on:
 jobs:
   report:
     runs-on: ubuntu-latest
+    env:
+      HAS_TOKEN: ${{ secrets.ASSETS_TOKEN != '' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -14,21 +16,66 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Generate objdiff config
-        run: python3 tools/objdiff_report.py
+      # O dump vem de um release num repo PRIVADO do proprio dono.
+      # O repo publico nunca contem dados do jogo.
+      - name: Baixar dump do repositorio privado
+        if: env.HAS_TOKEN == 'true'
+        env:
+          ASSETS_TOKEN: ${{ secrets.ASSETS_TOKEN }}
+          ASSETS_REPO: ${{ vars.ASSETS_REPO }}
+        run: |
+          mkdir -p disassembly
+          RID=$(curl -sL -H "Authorization: Bearer $ASSETS_TOKEN" \
+            "https://api.github.com/repos/$ASSETS_REPO/releases" | \
+            jq -r '.[0].id')
+          AID=$(curl -sL -H "Authorization: Bearer $ASSETS_TOKEN" \
+            "https://api.github.com/repos/$ASSETS_REPO/releases/$RID" | \
+            jq -r '.assets[] | select(.name | test("\\.3ds$|\\.cia$")) | .id' | head -1)
+          curl -sL -H "Authorization: Bearer $ASSETS_TOKEN" \
+            -H "Accept: application/octet-stream" \
+            -o disassembly/baserom.3ds \
+            "https://api.github.com/repos/$ASSETS_REPO/releases/assets/$AID"
+          ls -la disassembly/
 
-      - name: Install objdiff-cli
+      - name: Instalar ctrtool
+        if: env.HAS_TOKEN == 'true'
+        run: |
+          wget -q https://github.com/3DSGuy/Project_CTR/releases/download/ctrtool-v1.3.0/ctrtool-v1.3.0-ubuntu_x86_64.zip -O ctrtool.zip
+          unzip -o ctrtool.zip
+          chmod +x ctrtool
+          sudo mv ctrtool /usr/local/bin/
+          ctrtool --version | head -1
+
+      - name: Extrair code.bin
+        if: env.HAS_TOKEN == 'true'
+        run: python3 tools/extract.py
+
+      - name: Gerar targets efemeros + config
+        if: env.HAS_TOKEN == 'true'
+        run: |
+          python3 tools/gen_targets.py
+          python3 tools/objdiff_report.py
+
+      - name: Instalar objdiff-cli
+        if: env.HAS_TOKEN == 'true'
         run: |
           wget -q https://github.com/encounter/objdiff/releases/download/v3.8.0/objdiff-cli-linux-x86_64 -O objdiff-cli
           chmod +x objdiff-cli
 
-      - name: Generate progress report
+      - name: Gerar progress report
+        if: env.HAS_TOKEN == 'true'
         run: |
           mkdir -p build
           ./objdiff-cli report generate -p . -o build/progress.json
 
       - name: Upload report
+        if: env.HAS_TOKEN == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: us_report
           path: build/progress.json
+
+      - name: Aviso (sem ASSETS_TOKEN)
+        if: env.HAS_TOKEN != 'true'
+        run: |
+          echo "::warning::Secret ASSETS_TOKEN nao configurado - report pulado."
