@@ -15,20 +15,25 @@ python3 tools/check_env.py   # precisa terminar com "Ambiente completo!"
 
 ## Fluxo de contribuição
 
+O código é organizado em **units** (`targets/dash_XXXXXXXX/`) — blocos de
+~128KB de código que futuramente viram módulos nomeados (`Race/Camera`,
+`Mario/JSystem/...`, estilo Sunshine decomp). Cada unit contém centenas de
+funções; o progresso é medido por função dentro da unit.
+
 1. **Escolha uma função** no `data/symbols.csv` (gerado pelo Ghidra).
-   Colunas: `address,size,name,status`. Pegue uma sem `owner` e que caiba
-   no seu tempo — comece pelas pequenas (< 0x100 bytes).
+   Colunas: `address,size,name,status,owner`. Use `data/targets/index.json`
+   pra descobrir a qual unit uma função pertence. Comece pelas pequenas.
 
 2. **Reserve**: abra uma issue `[claim] 0xADDR nome_da_funcao` ou comente
    numa issue de tracking. Isso evita trabalho duplicado.
 
 3. **Descompile e entenda** a função (Ghidra/IDA/decomp.me). Escreva o C++
-   em `src/<modulo>/nome.cpp` seguindo as convenções abaixo.
+   em `src/<unit>/<Nome>.cpp` seguindo as convenções abaixo.
 
 4. **Verifique o match até bater 100%**:
 
 ```bash
-python3 tools/match.py 0xADDR src/modulo/nome.cpp
+python3 tools/match.py 0xADDR src/dash_00100024/MeuNome.cpp
 # divergiu? desassemble os dois lados e compare:
 arm-none-eabi-objdump -d /tmp/out.o   # (caminho impresso pelo script)
 ```
